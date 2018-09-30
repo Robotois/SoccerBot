@@ -95,6 +95,29 @@ void motorInit(
   motorCount++;
 }
 
+void motorsInit(
+  uint8_t cwPin,
+  uint8_t ccwPin,
+  uint8_t pwmPin,
+  uint8_t motorIdx
+) {
+  pwmPins[motorIdx] = pwmPin;
+  cwPins[motorIdx] = cwPin;
+  ccwPins[motorIdx] = ccwPin;
+
+  pinMode(cwPin, OUTPUT);
+  pinMode(ccwPin, OUTPUT);
+  digitalWrite(cwPin, LOW);
+  digitalWrite(ccwPin, LOW);
+
+  pinMode(pwmPin, OUTPUT);
+  ledcSetup(motorIdx, pwmFreq, resolution);
+  ledcAttachPin(pwmPin, motorIdx);
+  ledcWrite(motorIdx, 0);
+
+  motorCount++;
+}
+
 void setDirection(uint8_t motorIdx, uint8_t dir) {
   switch (dir) {
     case 1: // Clockwise
@@ -120,7 +143,7 @@ void setMotorPWM(int pwm, uint8_t motorIdx) {
     setDirection(motorIdx, CCW_DIR);
     ledcWrite(motorIdx, -pwm);
   }
-  Serial.println("Motor PWM: " + String(pwm) + ", Encoder Counter: " + String(prevEncCount[motorIdx]));
+  // Serial.println("Motor PWM: " + String(pwm) + ", Encoder Counter: " + String(prevEncCount[motorIdx]));
 }
 
 /*

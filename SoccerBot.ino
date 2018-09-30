@@ -3,9 +3,9 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 
-const char* ssid = "AXTEL XTREMO-7969";
-const char* password = "03367969";
-const char* brokerAdd = "192.168.15.2";
+const char* ssid = "yovany-dev";
+const char* password = "MEcr0839";
+const char* brokerAdd = "10.42.0.1";
 const char* clientId = "SoccerBot-01";
 String driveTopic = "SoccerBots/tablet-01/soccerBot-01/drive";
 
@@ -79,8 +79,12 @@ void drive(byte* payload) {
 
   float x = root["x"];
   float y = root["y"];
+  setMotorPWM(x * 1024, 0);
+  setMotorPWM( - x * 1024, 2);
+  setMotorPWM(y * 1024, 1);
+  setMotorPWM( - y * 1024, 3);
   float rotation = root["rotation"];
-  Serial.println("JSON Parsed: { x: " + String(x) + ", y: " + String(y) + ", rotation: " + String(rotation) + " }");
+  // Serial.println("JSON Parsed: { x: " + String(x) + ", y: " + String(y) + ", rotation: " + String(rotation) + " }");
 }
 
 void leds(byte* payload) {
@@ -115,6 +119,10 @@ void setup() {
   client.setServer(brokerAdd, 1883);
   client.setCallback(messageProcessor);
 
+  motorsInit(21, 3, 1, 0);
+  motorsInit(0, 15, 2, 1);
+  motorsInit(4, 16, 17, 2);
+  motorsInit(5, 18, 19, 3);
   // motorInit(encAPin, encBPin, pwmPin, cwPin, ccwPin, motorIdx);
   // pirControlInit();
   // setMotorSpeed(-50, 0);
