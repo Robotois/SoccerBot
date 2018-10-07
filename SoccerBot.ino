@@ -13,6 +13,7 @@ unsigned long timerr;
 WiFiClient espClient;
 PubSubClient client(espClient);
 
+// x, y, r
 float tupla[3] = {0, 0, 0};
 
 void setupWifi() {
@@ -55,6 +56,16 @@ void mqttLoop() {
   client.loop();
 }
 
+void centerOffset(float theta = 45) {
+  float x, y;
+  // x = x * cos \theta - y * sin \theta
+  // y = x * sin \theta + y * cos \theta
+  x = tupla[0] * cos(theta) - tupla[1] * sin(theta);
+  y = tupla[0] * sin(theta) + tupla[1] * cos(theta);
+  tupla[0] = x;
+  tupla[1] = y;
+}
+
 void drive(String payload, unsigned int length) {
   uint8_t prevIdx = 0;
   uint8_t tuplaIdx = 0;
@@ -65,10 +76,11 @@ void drive(String payload, unsigned int length) {
       prevIdx = i + 1;
     }
   }
-  setMotorPWM(tupla[0] * 1024, 0);
-  setMotorPWM( - tupla[0] * 1024, 2);
-  setMotorPWM(tupla[1] * 1024, 1);
-  setMotorPWM( - tupla[1] * 1024, 3);
+  centerOffset();
+  setMotorPWM((tupla[0] - tupla[2] * 0.35) * 1024, 0);
+  setMotorPWM((- tupla[0] - tupla[2] * 0.35) * 1024, 2);
+  setMotorPWM((tupla[1] - tupla[2] * 0.35) * 1024, 1);
+  setMotorPWM((- tupla[1] - tupla[2] * 0.35) * 1024, 3);
 }
 
 // void leds(byte* payload) {
