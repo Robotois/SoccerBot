@@ -5,7 +5,7 @@
 
 const char* ssid = "Wireless-N";
 const char* password = "robotois8899";
-const char* brokerAdd = "192.168.10.102";
+const char* brokerAdd = "192.168.10.103";
 const char* clientId = "SoccerBot-01";
 String driveTopic = "SoccerBots/tablet-01/soccerBot-01/drive";
 unsigned long timerr;
