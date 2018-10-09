@@ -3,9 +3,9 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 
-const char* ssid = "AXTEL XTREMO-7969";
-const char* password = "03367969";
-const char* brokerAdd = "192.168.15.5";
+const char* ssid = "Wireless-N";
+const char* password = "robotois8899";
+const char* brokerAdd = "192.168.10.101";
 const char* clientId = "SoccerBot-01";
 String driveTopic = "SoccerBots/tablet-01/soccerBot-01/drive";
 unsigned long timerr;
