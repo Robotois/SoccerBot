@@ -5,7 +5,7 @@
 
 const char* ssid = "Wireless-N";
 const char* password = "robotois8899";
-const char* brokerAdd = "192.168.10.103";
+const char* brokerAdd = "192.168.10.101";
 const char* clientId = "SoccerBot-01";
 String driveTopic = "SoccerBots/tablet-01/soccerBot-01/drive";
 unsigned long timerr;
@@ -118,10 +118,17 @@ void setup() {
   client.setServer(brokerAdd, 1883);
   client.setCallback(messageProcessor);
 
+  /*OLD PINES*/
   motorsInit(0, 15, 2, 0);
   motorsInit(4, 16, 17, 1);
   motorsInit(5, 18, 19, 2);
   motorsInit(21, 22, 23, 3);
+  /*NEW PINES*/
+  /*motorsInit(21, 3, 1, 0);
+  motorsInit(0, 15, 2, 1);
+  motorsInit(4, 16, 17, 2);
+  motorsInit(5, 18, 19, 3);*/
+
   // motorInit(encAPin, encBPin, pwmPin, cwPin, ccwPin, motorIdx);
   // pirControlInit();
   // setMotorSpeed(-50, 0);
