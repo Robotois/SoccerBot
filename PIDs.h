@@ -11,7 +11,17 @@ uint8_t cwPins[4] = {};
 uint8_t ccwPins[4] = {};
 uint8_t motorCount = 0;
 
-int pwmFreq = 5000, resolution = 10;
+int pwmFreq = 2000, resolution = 10;
+
+int boundValue(int value, int min, int max) {
+  if(value < min) {
+    return min;
+  }
+  if(value > max) {
+    return max;
+  }
+  return value;
+}
 
 /*
   Motors
@@ -136,12 +146,13 @@ void setDirection(uint8_t motorIdx, uint8_t dir) {
 }
 
 void setMotorPWM(int pwm, uint8_t motorIdx) {
-  if(pwm >= 0) {
+  int newPwm = boundValue(pwm, -1024, 1024);
+  if(newPwm >= 0) {
     setDirection(motorIdx, CW_DIR);
-    ledcWrite(motorIdx, pwm);
+    ledcWrite(motorIdx, newPwm);
   } else {
     setDirection(motorIdx, CCW_DIR);
-    ledcWrite(motorIdx, -pwm);
+    ledcWrite(motorIdx, -newPwm);
   }
   // Serial.println("Motor PWM: " + String(pwm) + ", Encoder Counter: " + String(prevEncCount[motorIdx]));
 }
@@ -181,16 +192,6 @@ void pirControlInit() {
   timerAttachInterrupt(timer, &pidCycle, true);
   timerAlarmWrite(timer, 20000, true);
   timerAlarmEnable(timer);
-}
-
-int boundValue(int value, int min, int max) {
-  if(value < min) {
-    return min;
-  }
-  if(value > max) {
-    return max;
-  }
-  return value;
 }
 
 void pidControl() {

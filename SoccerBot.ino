@@ -13,23 +13,14 @@ unsigned long timerr;
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-
-
-uint8_t motorIdx = 0;
-uint8_t pwmPin = 2;
-uint8_t encAPin = 15;
-uint8_t encBPin = 4;
-uint8_t cwPin = 16;
-uint8_t ccwPin = 17;
+// x, y, r
+float tupla[3] = {0, 0, 0};
 
 void setupWifi() {
-
   WiFi.begin(ssid, password);
-
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
   }
-
   randomSeed(micros());
 }
 
@@ -43,7 +34,7 @@ void reconnect() {
       // Once connected, publish an announcement...
       // client.publish("outTopic", "hello world");
       // ... and resubscribe
-      client.subscribe(driveTopic.c_str());
+      client.subscribe(driveTopic.c_str(), 1);
     } else {
       //Serial.print("failed, rc=");
       //Serial.println(client.state());
@@ -65,55 +56,57 @@ void mqttLoop() {
   client.loop();
 }
 
-void drive(byte* payload) {
-  StaticJsonBuffer<200> jsonBuffer;
-  JsonObject& root = jsonBuffer.parseObject(payload);
-
-  if(!root.success()) {
-    //Serial.println("[JSON Error] -> parseObject error");
-    return;
-  }
-
-  float x = root["x"];
-  float y = root["y"];
-  setMotorPWM(x * 1024, 0);
-  setMotorPWM( - x * 1024, 2);
-  setMotorPWM(y * 1024, 1);
-  setMotorPWM( - y * 1024, 3);
-  float rotation = root["rotation"];
-  // //Serial.println("JSON Parsed: { x: " + String(x) + ", y: " + String(y) + ", rotation: " + String(rotation) + " }");
+void centerOffset(float theta = 45) {
+  float x, y;
+  // x = x * cos \theta - y * sin \theta
+  // y = x * sin \theta + y * cos \theta
+  x = tupla[0] * cos(theta) - tupla[1] * sin(theta);
+  y = tupla[0] * sin(theta) + tupla[1] * cos(theta);
+  tupla[0] = x;
+  tupla[1] = y;
 }
 
-void leds(byte* payload) {
-  StaticJsonBuffer<200> jsonBuffer;
-  JsonObject& root = jsonBuffer.parseObject(payload);
-
-  if(!root.success()) {
-    //Serial.println("[JSON Error] -> parseObject error");
-    return;
+void drive(String payload, unsigned int length) {
+  uint8_t prevIdx = 0;
+  uint8_t tuplaIdx = 0;
+  for (uint8_t i = 0; i <= length; i++) {
+    if(payload.charAt(i) == ',' || i == length) {
+      tupla[tuplaIdx] = payload.substring(prevIdx, i).toFloat();
+      tuplaIdx++;
+      prevIdx = i + 1;
+    }
   }
-  uint8_t celebrate = root["celebrate"];
-  //Serial.println("JSON Parsed: { celebrate: " + String(celebrate) + " }");
+  centerOffset();
+  setMotorPWM((tupla[0] - tupla[2] * 0.35) * 1024, 0);
+  setMotorPWM((- tupla[0] - tupla[2] * 0.35) * 1024, 2);
+  setMotorPWM((tupla[1] - tupla[2] * 0.35) * 1024, 1);
+  setMotorPWM((- tupla[1] - tupla[2] * 0.35) * 1024, 3);
 }
+
+// void leds(byte* payload) {
+//   StaticJsonBuffer<200> jsonBuffer;
+//   JsonObject& root = jsonBuffer.parseObject(payload);
+//
+//   if(!root.success()) {
+//     //Serial.println("[JSON Error] -> parseObject error");
+//     return;
+//   }
+//   uint8_t celebrate = root["celebrate"];
+//   //Serial.println("JSON Parsed: { celebrate: " + String(celebrate) + " }");
+// }
 
 void messageProcessor(char* topic, byte* payload, unsigned int length) {
-  String topicStr = String(topic);
-
-  // //Serial.print("[" + topicStr + "]: ");
-  // String msg = String((char*)payload);
-  // //Serial.println(msg);
+  timerr = millis();
+  String msg = String((char*)payload);
+  // Serial.println(msg);
 
   // set message timestamp
-  timerr = millis();
-  if(topicStr.equals(driveTopic)) {
-    drive(payload);
-    return;
-  }
+  drive(msg, length);
 }
 
 void setup() {
-  //Serial.begin(115200);
-  //Serial.println("ESP32 SoccerBot");
+  // Serial.begin(115200);
+  // Serial.println("ESP32 SoccerBot");
   setupWifi();
   client.setServer(brokerAdd, 1883);
   client.setCallback(messageProcessor);
@@ -136,7 +129,7 @@ void setup() {
 
 void loop() {
   // pidControl();
-  if((millis()) - timerr > 1200) {    
+  if((millis()) - timerr > 1000) {
     setMotorPWM(0, 0);
     setMotorPWM(0, 2);
     setMotorPWM(0, 1);
@@ -144,8 +137,3 @@ void loop() {
    }
   mqttLoop();
 }
-
-
-/*
-  MQTT comunication
-*/
