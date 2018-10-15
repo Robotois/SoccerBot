@@ -8,9 +8,9 @@
 
 // #define USE_SERIAL
 
-const char* ssid = "AXTEL XTREMO-7969";
-const char* password = "03367969";
-const char* brokerAdd = "192.168.15.6";
+const char* ssid = "robotoisAP";
+const char* password = "robotois8899";
+const char* brokerAdd = "192.168.50.27";
 const char* clientId = "SoccerBot-01";
 String driveTopic = "SoccerBots/tablet-01/soccerBot-01/drive";
 unsigned long timerr = 0;
@@ -36,15 +36,15 @@ void motorsStop() {
 
 void motorsStart() {
   /*NEW PINES*/
-  motorsInit(0, 15, 2, 0);
+  /*motorsInit(0, 15, 2, 0);
   motorsInit(4, 16, 17, 1);
   motorsInit(5, 18, 19, 2);
-  motorsInit(21, 22, 23, 3);
+  motorsInit(21, 22, 23, 3);*/
   /*OLD PINES*/
-  // motorsInit(21, 3, 1, 0);
-  // motorsInit(0, 15, 2, 1);
-  // motorsInit(4, 16, 17, 2);
-  // motorsInit(5, 18, 19, 3);
+  motorsInit(21, 3, 1, 0);
+  motorsInit(0, 15, 2, 1);
+  motorsInit(4, 16, 17, 2);
+  motorsInit(5, 18, 19, 3);
 }
 
 void setupWifi() {

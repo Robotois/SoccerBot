@@ -140,8 +140,8 @@ void setDirection(uint8_t motorIdx, uint8_t dir) {
       break;
     default:
     // case 0: // Stop on any other value
-      digitalWrite(cwPins[motorIdx], HIGH);
-      digitalWrite(ccwPins[motorIdx], HIGH);
+      digitalWrite(cwPins[motorIdx], LOW);
+      digitalWrite(ccwPins[motorIdx], LOW);
   }
 }
 
