@@ -11,7 +11,7 @@ uint8_t cwPins[4] = {};
 uint8_t ccwPins[4] = {};
 uint8_t motorCount = 0;
 
-int pwmFreq = 2000, resolution = 10;
+int pwmFreq = 5000, resolution = 10;
 
 int boundValue(int value, int min, int max) {
   if(value < min) {
@@ -140,14 +140,19 @@ void setDirection(uint8_t motorIdx, uint8_t dir) {
       break;
     default:
     // case 0: // Stop on any other value
-      digitalWrite(cwPins[motorIdx], LOW);
-      digitalWrite(ccwPins[motorIdx], LOW);
+      digitalWrite(cwPins[motorIdx], HIGH);
+      digitalWrite(ccwPins[motorIdx], HIGH);
   }
 }
 
 void setMotorPWM(int pwm, uint8_t motorIdx) {
   int newPwm = boundValue(pwm, -1024, 1024);
-  if(newPwm >= 0) {
+  if(newPwm == 0) {
+    setDirection(motorIdx, 0);
+    ledcWrite(motorIdx, 0);
+    return;
+  }
+  if(newPwm > 0) {
     setDirection(motorIdx, CW_DIR);
     ledcWrite(motorIdx, newPwm);
   } else {
